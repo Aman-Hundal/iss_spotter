@@ -1,5 +1,4 @@
 const request = require('request');
-
 /**
  * Makes a single API request to retrieve the user's IP address.
  * Input:
@@ -72,14 +71,46 @@ const fetchISSData = function(coordsObj, callback) {
   });
 };
 
+//final function -Chains togehter all of our 3 previous created functions to pass on data. The primary function that index.js calls and it triggerts a chain of nested asynch functions (THE ONES WE CREATED EARLIER) to get the data result (or error). KEY NOTE -> AS ASYCNS CANNOT RETURN VALUES (AND PASS RETURNED VALUES AROUND) WE HAVE TO CHAIN THE VARIOUS ASYNCS AND COMBO THEM TO GET OUR DESIRED RESULT/DATA.
+/** //if any error is triggered in the chains asyncs the nestIssTime (the final function) will stop
+ * 
+ * Orchestrates multiple API requests in order to determine the next 5 upcoming ISS fly overs for the user's current location.
+ * Input:
+ *   - A callback with an error or results. 
+ * Returns (via Callback):
+ *   - An error, if any (nullable)
+ *   - The fly-over times as an array (null if error):
+ *     [ { risetime: <number>, duration: <number> }, ... ]
+ */ 
+//THE ABOVE THREE FUNCTIONS ARE GOING TO BE CALLED HERE NOT PUSHED IN AND DFINED AGAIN
+ const nextISSTimesForMyLocation = function(callback) { //this call back IS GOING TO RELY ON THE SAME METHODOLOGY AS the other CALLBACK TESTS WE WERE DOING. THAT IS callback = error, result. THE CALLBACK WILL LOOK FOR THESE TO DETEMRINE WHAT PARAM HAPPENED. USE NuLL TO BLOCK OUT ANY PARAM (IE IF ERROR NULL OUT RESULT and VICE VERSA)
+   fetchMyIP((error, dataIP) => { //this function like the other two passed below are looking for error to be passed in as first param and result to be passed in as second. see above function declaration code to confirm. 
+     if (error) {
+       return callback(error, null);
+     }
+     fetchCoordsByIP(dataIP, (error, latLongObj) => { // LOOK AT THE DATA IP BEING PASSED IN. By chaining these callback async functions you can pass in previously created data, required for the net async function via the function call.In this case data.ip can be passed to the fetchcordinates -> this ip is neded for this function to work
+       if (error) {
+         return callback(error, null);
+       }
+       fetchISSData(latLongObj, (error, issTimes) => {
+         if(error) {
+           return callback(error, null);
+         }
+         callback(null, issTimes);
+       });
+     });
+   });
+};
+
 module.exports = {
-  fetchMyIP,
-  fetchCoordsByIP,
-  fetchISSData
+  // fetchMyIP,
+  // fetchCoordsByIP,
+  // fetchISSData,
+  nextISSTimesForMyLocation
 };
 
 
-//FETCHMYIP + FETCHCOORD RULES CALLBACK RULES
+//ERROR, NULL CALLBACK RULES. ALL CALL BACKS WILL HAVE THIS SETUP IN THIS EXERCISE.
 // It should:
 // pass through the error to the callback if an error occurs when requesting the IP data
 // parse and extract the IP address using JSON and then pass that through to the callback (as the second argument) if there is no error

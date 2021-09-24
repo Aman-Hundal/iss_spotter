@@ -82,7 +82,7 @@ const fetchISSData = function(coordsObj, callback) {
  *   - The fly-over times as an array (null if error):
  *     [ { risetime: <number>, duration: <number> }, ... ]
  */
-//THE ABOVE THREE FUNCTIONS ARE GOING TO BE CALLED HERE NOT PUSHED IN AND DFINED AGAIN
+//THE ABOVE THREE FUNCTIONS ARE GOING TO BE CALLED HERE NOT PUSHED IN AND DFINED AGAIN. IN CALLBACK CHAINS -> CALL YOUR PREVIOUSLY MADE ASYNC FUNCTIONS DO NOT DECLARE THEM IN THE CHAIN
  const nextISSTimesForMyLocation = function(callback) { //this call back IS GOING TO RELY ON THE SAME METHODOLOGY AS the other CALLBACK TESTS WE WERE DOING. THAT IS callback = error, result. THE CALLBACK WILL LOOK FOR THESE TO DETEMRINE WHAT PARAM HAPPENED. USE NuLL TO BLOCK OUT ANY PARAM (IE IF ERROR NULL OUT RESULT and VICE VERSA)
    fetchMyIP((error, dataIP) => { //this function like the other two passed below are looking for error to be passed in as first param and result to be passed in as second. see above function declaration code to confirm.
      if (error) {
@@ -92,7 +92,7 @@ const fetchISSData = function(coordsObj, callback) {
        if (error) {
          return callback(error, null);
        }
-       fetchISSData(latLongObj, (error, issTimes) => {
+       fetchISSData(latLongObj, (error, issTimes) => { // these function calls are saying -> if no error get the result from the previous function  and then pass it along to the next function (the current function)
          if (error) {
            return callback(error, null);
          }
